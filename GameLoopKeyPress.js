@@ -59,6 +59,18 @@ scoreMessage.style.textShadow = "2px 2px 4px #000000";
 scoreMessage.style.zIndex = "1";
 document.body.appendChild(scoreMessage);
 
+const winMessage = document.createElement("div");
+winMessage.style.position = "fixed";
+winMessage.style.top = "24px";
+winMessage.style.left = "24px";
+winMessage.style.fontFamily = "sans-serif";
+winMessage.style.fontSize = "24px";
+winMessage.style.fontWeight = "bold";
+winMessage.style.color = "#ffffff";
+winMessage.style.textShadow = "2px 2px 4px #000000";
+winMessage.style.zIndex = "1";
+document.body.appendChild(winMessage);
+
 // Ground Plane
 const planeGeometry = new THREE.PlaneGeometry(30, 30);
 const planeMaterial = new THREE.MeshStandardMaterial({
@@ -90,9 +102,7 @@ scene.add(directionalLight);
 
 // Player Cube
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-const playerMaterial = new THREE.MeshStandardMaterial({
-    color: 0x0000ff
-});
+const playerMaterial = new THREE.MeshStandardMaterial({color: 0x0000ff});
 
 const player = new THREE.Mesh(
     cubeGeometry,
@@ -181,14 +191,26 @@ function updateTimerMessage(secondsRemaining) {
     }
 }
 
-function updateScoreMessage() {
-    scoreMessage.textContent = `Score: ${maxCollectibles - collectibles.length}`;
-}
-
 function updateTimer() {
     const elapsedSeconds = Math.floor((performance.now() - gameStartTime) / 1000);
     const secondsRemaining = Math.max(gameDuration - elapsedSeconds, 0);
     updateTimerMessage(secondsRemaining);
+}
+
+function updateScoreMessage() {
+    scoreMessage.textContent = `Score: ${maxCollectibles - collectibles.length}`;
+}
+
+function displayWinMessage(){
+    winMessage.textContent = "You win!";
+    winMessage.style.top = "50%";
+    winMessage.style.right = "auto";
+    winMessage.style.left = "50%";
+    winMessage.style.transform = "translate(-50%, -50%)";
+    winMessage.style.width = "100%";
+    winMessage.style.textAlign = "center";
+    winMessage.style.fontSize = "15vw";
+    winMessage.style.color = "#0000ff";
 }
 
 // function updateCollisionMessage(isColliding) {
@@ -232,41 +254,47 @@ function animate() {
     updateTimer();
     updateScoreMessage();
 
-    // WASD Controls
-    if (keys["w"]) {
-        player.position.z -= speed;
-    }
+    if (collectibles.length > 0){
+        // WASD Controls
+        if (keys["w"]) {
+            player.position.z -= speed;
+        }
 
-    if (keys["s"]) {
-        player.position.z += speed;
-    }
+        if (keys["s"]) {
+            player.position.z += speed;
+        }
 
-    if (keys["a"]) {
-        player.position.x -= speed;
-    }
+        if (keys["a"]) {
+            player.position.x -= speed;
+        }
 
-    if (keys["d"]) {
-        player.position.x += speed;
-    }
+        if (keys["d"]) {
+            player.position.x += speed;
+        }
 
-    // Arrow Key Controls
-    if (keys["arrowup"]) {
-        player.position.z -= speed;
-    }
+        // Arrow Key Controls
+        if (keys["arrowup"]) {
+            player.position.z -= speed;
+        }
 
-    if (keys["arrowdown"]) {
-        player.position.z += speed;
-    }
+        if (keys["arrowdown"]) {
+            player.position.z += speed;
+        }
 
-    if (keys["arrowleft"]) {
-        player.position.x -= speed;
-    }
+        if (keys["arrowleft"]) {
+            player.position.x -= speed;
+        }
 
-    if (keys["arrowright"]) {
-        player.position.x += speed;
+        if (keys["arrowright"]) {
+            player.position.x += speed;
+        }
     }
 
     handleCollisions();
+
+    if (collectibles.length == 0) {
+        displayWinMessage();
+    }
 
     renderer.render(scene, camera);
 }
