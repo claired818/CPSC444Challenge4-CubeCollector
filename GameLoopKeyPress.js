@@ -191,10 +191,13 @@ function updateTimerMessage(secondsRemaining) {
     }
 }
 
+let secondsRemaining;
 function updateTimer() {
-    const elapsedSeconds = Math.floor((performance.now() - gameStartTime) / 1000);
-    const secondsRemaining = Math.max(gameDuration - elapsedSeconds, 0);
-    updateTimerMessage(secondsRemaining);
+    if (collectibles.length > 0){
+        const elapsedSeconds = Math.floor((performance.now() - gameStartTime) / 1000);
+        secondsRemaining = Math.max(gameDuration - elapsedSeconds, 0);
+        updateTimerMessage(secondsRemaining);
+    }
 }
 
 function updateScoreMessage() {
@@ -254,7 +257,7 @@ function animate() {
     updateTimer();
     updateScoreMessage();
 
-    if (collectibles.length > 0){
+    if (collectibles.length > 0 && secondsRemaining > 0){
         // WASD Controls
         if (keys["w"]) {
             player.position.z -= speed;
