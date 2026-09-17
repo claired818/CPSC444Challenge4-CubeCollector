@@ -102,10 +102,11 @@ const player = new THREE.Mesh(
 player.position.y = 0.5;
 scene.add(player);
 
+const maxCollectibles = 10;
 const collectibleMaterial = new THREE.MeshStandardMaterial({color: 0x880088});
 
 const collectibles = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < maxCollectibles; i++) {
     collectibles.push(new THREE.Mesh(cubeGeometry, collectibleMaterial));
 }
 
@@ -155,8 +156,6 @@ window.addEventListener("keyup", (event) => {
     keys[event.key.toLowerCase()] = false;
 });
 
-let score = 0;
-
 // Movement Speed
 const speed = 0.1;
 const playerBounds = new THREE.Box3();
@@ -182,8 +181,8 @@ function updateTimerMessage(secondsRemaining) {
     }
 }
 
-function updateScoreMessage(score) {
-    scoreMessage.textContent = `Score: ${score}`;
+function updateScoreMessage() {
+    scoreMessage.textContent = `Score: ${maxCollectibles - collectibles.length}`;
 }
 
 function updateTimer() {
@@ -220,7 +219,7 @@ function handleCollisions() {
 
         if (collided) {
             scene.remove(object);
-            
+            collectibles.splice(collectibles.indexOf(object), 1);
         }
     });
 }
@@ -231,7 +230,7 @@ function animate() {
     requestAnimationFrame(animate);
 
     updateTimer();
-    updateScoreMessage(score);
+    updateScoreMessage();
 
     // WASD Controls
     if (keys["w"]) {
