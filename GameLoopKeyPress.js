@@ -2,7 +2,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb);
+scene.background = new THREE.Color(0x000000);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
@@ -73,9 +73,7 @@ document.body.appendChild(winMessage);
 
 // Ground Plane
 const planeGeometry = new THREE.PlaneGeometry(30, 30);
-const planeMaterial = new THREE.MeshStandardMaterial({
-    color: 0x44aa44
-});
+const planeMaterial = new THREE.MeshStandardMaterial({color: 0xffffff});
 
 const plane = new THREE.Mesh(
     planeGeometry,
@@ -102,7 +100,7 @@ scene.add(directionalLight);
 
 // Player Cube
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-const playerMaterial = new THREE.MeshStandardMaterial({color: 0x0000ff});
+const playerMaterial = new THREE.MeshStandardMaterial({color: "#a3ffff"});
 
 const player = new THREE.Mesh(
     cubeGeometry,
@@ -112,15 +110,32 @@ const player = new THREE.Mesh(
 player.position.y = 0.5;
 scene.add(player);
 
-const maxCollectibles = 10;
-const collectibleMaterial = new THREE.MeshStandardMaterial({color: 0x880088});
+let score = 0;
+let totalScore = 0;
+const collectibleOneMaterial = new THREE.MeshStandardMaterial({color: "#ca8aff"});
+const collectibleFiveMaterial = new THREE.MeshStandardMaterial({color: "#ffb1d1"});
+const collectibleTenMaterial = new THREE.MeshStandardMaterial({color: "#83ff95"});
 
 const collectibles = [];
-for (let i = 0; i < maxCollectibles; i++) {
-    collectibles.push(new THREE.Mesh(cubeGeometry, collectibleMaterial));
+for (let i = 0; i < 10; i++) {
+    let collectible;
+    if (i < 5) {
+        collectible = new THREE.Mesh(cubeGeometry, collectibleOneMaterial);
+        collectible.name = "one";
+        collectibles.push(collectible);
+        totalScore += 1;
+    } else if (i < 8) {
+        collectible = new THREE.Mesh(cubeGeometry, collectibleFiveMaterial);
+        collectible.name = "five";
+        collectibles.push(collectible);
+        totalScore += 5;
+    } else {
+        collectible = new THREE.Mesh(cubeGeometry, collectibleTenMaterial);
+        collectible.name = "ten";
+        collectibles.push(collectible);
+        totalScore += 10;
+    }
 }
-
-const targetObject = collectibles[collectibles.length - 1];
 
 function placeObjects(objects) {
     const objectPositions = [];
@@ -185,7 +200,7 @@ function updateTimerMessage(secondsRemaining) {
         timerMessage.style.width = "100%";
         timerMessage.style.textAlign = "center";
         timerMessage.style.fontSize = "15vw";
-        timerMessage.style.color = "#ff3333";
+        timerMessage.style.color = "#f0cf65";
     } else {
         timerMessage.textContent = `Time: ${secondsRemaining}`;
     }
@@ -201,7 +216,7 @@ function updateTimer() {
 }
 
 function updateScoreMessage() {
-    scoreMessage.textContent = `Score: ${maxCollectibles - collectibles.length}`;
+    scoreMessage.textContent = `Score: ${score} / ${totalScore}`;
 }
 
 function displayWinMessage(){
@@ -213,27 +228,10 @@ function displayWinMessage(){
     winMessage.style.width = "100%";
     winMessage.style.textAlign = "center";
     winMessage.style.fontSize = "15vw";
-    winMessage.style.color = "#0000ff";
+    winMessage.style.color = "#80ffff";
 }
 
-// function updateCollisionMessage(isColliding) {
-//     if (targetFound) {
-//         collisionMessage.textContent = "Congratulations! You win!";
-//         collisionMessage.style.display = "block";
-//         collisionMessage.style.color = "#22cc55";
-//     } else if (isColliding) {
-//         collisionMessage.textContent = "Collision is happening!";
-//         collisionTime += 0.05;
-//         collisionMessage.style.display = "block";
-//         collisionMessage.style.color = `hsl(${(collisionTime * 180) % 360}, 100%, 50%)`;
-//     } else {
-//         collisionTime = 0;
-//         collisionMessage.textContent = "Collision is happening!";
-//         collisionMessage.style.display = "none";
-//         collisionMessage.style.color = "#ffffff";
-//     }
-// }
-
+let cubeType = 0; // the collected cube
 function handleCollisions() {
     playerBounds.setFromObject(player);
     let collided = false;
@@ -244,6 +242,7 @@ function handleCollisions() {
 
         if (collided) {
             scene.remove(object);
+            cubeType = object.name;
             collectibles.splice(collectibles.indexOf(object), 1);
         }
     });
@@ -259,41 +258,58 @@ function animate() {
 
     if (collectibles.length > 0 && secondsRemaining > 0){
         // WASD Controls
-        if (keys["w"]) {
+        if (keys["w"] && player.position.z > -14) {
             player.position.z -= speed;
         }
 
-        if (keys["s"]) {
+        if (keys["s"] && player.position.z < 11) {
             player.position.z += speed;
         }
 
-        if (keys["a"]) {
+        if (keys["a"] && player.position.x > -14.4) {
             player.position.x -= speed;
         }
 
-        if (keys["d"]) {
+        if (keys["d"] && player.position.x < 14.4) {
             player.position.x += speed;
         }
 
         // Arrow Key Controls
-        if (keys["arrowup"]) {
+        if (keys["arrowup"] && player.position.z > -14) {
             player.position.z -= speed;
         }
 
-        if (keys["arrowdown"]) {
+        if (keys["arrowdown"] && player.position.z < 11) {
             player.position.z += speed;
         }
 
-        if (keys["arrowleft"]) {
+        if (keys["arrowleft"] && player.position.x > -14.4) {
             player.position.x -= speed;
         }
 
-        if (keys["arrowright"]) {
+        if (keys["arrowright"] && player.position.x < 14.4) {
             player.position.x += speed;
         }
+
+        collectibles.forEach((object) => {
+            object.rotation.y += 0.025;
+        });
     }
 
     handleCollisions();
+
+    if (cubeType) {
+        if (cubeType === "one") {
+            score += 1;
+            cubeType = undefined;
+        } else if (cubeType === "five") {
+            score += 5;
+            cubeType = undefined;
+        } else if (cubeType === "ten") {
+            score += 10;
+            cubeType = undefined;
+        }
+    }
 
     if (collectibles.length == 0) {
         displayWinMessage();
